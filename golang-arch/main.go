@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 )
@@ -43,6 +44,7 @@ func main() {
 
 }
 
+// curl localhost:8082/encode
 func foo(w http.ResponseWriter, r *http.Request) {
 	p := person{First: "Jhon Encode"}
 	err := json.NewEncoder(w).Encode(p)
@@ -53,6 +55,13 @@ func foo(w http.ResponseWriter, r *http.Request) {
 
 }
 
+//  curl -XGET -H "content-type: application/json" -d '{"First": "Jhon Decode"}'  'localhost:8082/encode'
 func bar(w http.ResponseWriter, r *http.Request) {
+	var p person
+	err := json.NewDecoder(r.Body).Decode(&p)
+	if err != nil {
+		fmt.Println("Decoded bad data!!", err)
+	}
 
+	log.Println("Person ", p)
 }
