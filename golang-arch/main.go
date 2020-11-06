@@ -46,8 +46,8 @@ func main() {
 
 // curl localhost:8082/encode
 func foo(w http.ResponseWriter, r *http.Request) {
-	p := person{First: "Jhon Encode"}
-	err := json.NewEncoder(w).Encode(p)
+	sp := []person{{First: "Jhon Encode"}, {First: "Jhon2 Encode"}}
+	err := json.NewEncoder(w).Encode(sp)
 
 	if err != nil {
 		log.Println("Encoded bad data!", err)
@@ -55,9 +55,9 @@ func foo(w http.ResponseWriter, r *http.Request) {
 
 }
 
-//  curl -XGET -H "content-type: application/json" -d '{"First": "Jhon Decode"}'  'localhost:8082/encode'
+//  curl -XGET -H "content-type: application/json" -d '[{"First": "Jhon Decode"},{"First": "Jhon Decode2"}]'  'localhost:8082/decode'
 func bar(w http.ResponseWriter, r *http.Request) {
-	var p person
+	var p []person
 	err := json.NewDecoder(r.Body).Decode(&p)
 	if err != nil {
 		fmt.Println("Decoded bad data!!", err)
