@@ -1,10 +1,13 @@
 package main
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type person struct {
@@ -12,34 +15,11 @@ type person struct {
 }
 
 func main() {
-	// p1 := person{
-	// 	First: "Jhon",
-	// }
-
-	// p2 := person{
-	// 	First: "Rocio",
-	// }
-
-	// xp := []person{p1, p2}
-	// bs, err := json.Marshal(xp)
-
-	// if err != nil {
-	// 	log.Panic(err)
-	// }
-
-	// fmt.Println("Print Json:", string(bs))
-
-	// xp2 := []person{}
-	// err = json.Unmarshal(bs, &xp2)
-
-	// if err != nil {
-	// 	log.Panic(err)
-	// }
-
-	// fmt.Println("back into go data Structure", xp2)
 
 	http.HandleFunc("/encode", foo)
 	http.HandleFunc("/decode", bar)
+	http.HandleFunc("/base64", base64test)
+	//http.HandleFunc("/hash", hashpassword)
 	http.ListenAndServe(":8082", nil)
 
 }
@@ -64,4 +44,32 @@ func bar(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Println("Person ", p)
+}
+
+func base64test(w http.ResponseWriter, r *http.Request) {
+	msg := "Hello, 世界"
+	encoded := base64.StdEncoding.EncodeToString([]byte(msg))
+	log.Println(encoded)
+	decoded, err := base64.StdEncoding.DecodeString(encoded)
+	if err != nil {
+		fmt.Println("decode error:", err)
+		return
+	}
+	log.Println(string(decoded))
+}
+
+func hashpassword(password string) ([]byte, error) {
+	bs, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, fmt.Errorf("Error while generating bcrypt hash from password: %w", err)
+	}
+	return bs, nil
+}
+
+func comparePassword(password string, hashedPass []byte) error {
+	err := bcrypt.CompareHashAndPassword(hashedPass, []byte(password))
+	if err != nil {
+		return fmt.Errorf("Invalid Password: %w", err)
+	}
+	return nil
 }
